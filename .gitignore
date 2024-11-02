@@ -1,0 +1,17 @@
+*.js
+!jest.config.js
+*.d.ts
+node_modules
+content.html
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+.env
+
+#python venv
+lambda__encicla_bot/venv
+__pycache__
+*.pyc
+.pytest_cache
+.benchmarks

@@ -20,10 +20,11 @@ export class EnciclaRenewalBotStack extends cdk.Stack {
     const function_path = path.resolve(__dirname, '..', 'lambda__encicla_bot')
 
     const bucketName = 'encicla-renewal-bot--s3bucket';
-    const zipFileKey = 'encicla-renewal-bot--s3bucket/playwright-layer.zip';
+    const zipFileKey = 'playwright-layer.zip';
     const bucket = s3.Bucket.fromBucketName(this, resource_name('s3Bucket'), bucketName);
 
     const playwright_lambda_layer = new lambda.LayerVersion(this, resource_name('playwrightLambdaLayer'), {
+      layerVersionName: resource_name('playwrightLambdaLayer'),
       code: lambda.Code.fromBucket(bucket, zipFileKey),
       compatibleRuntimes: [lambda.Runtime.PYTHON_3_12]
     });
@@ -41,6 +42,7 @@ export class EnciclaRenewalBotStack extends cdk.Stack {
     })
 
     const event_rule = new events.Rule(this, resource_name('EventBridgeRule'), {
+      ruleName:resource_name('EventBridgeRule'),
       schedule: events.Schedule.rate(cdk.Duration.days(5)),
     })
 

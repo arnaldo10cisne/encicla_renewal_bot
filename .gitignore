@@ -15,3 +15,6 @@ __pycache__
 *.pyc
 .pytest_cache
 .benchmarks
+playwright-layer
+
+.DS_Store

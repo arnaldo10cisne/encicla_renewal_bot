@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def encicla_bot():
     with sync_playwright() as p:
         try:
-            logging.info("INICIANDO ACCESO A LA PAGINA Y LLENADO DE DATOS PARA INICIAR SESION")
+            logging.info("STARTING ACCESS TO THE PAGE AND FILLING IN DATA TO LOG IN")
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             page.set_default_timeout(90000)
@@ -24,32 +24,32 @@ def encicla_bot():
             page.fill("#TxtNumeroDocumento", ENCICLA_USER_ID)
             page.fill("#TxtClave", ENCICLA_PIN_CODE)
 
-            logging.info("INICIADO PROCESO DE INICIO DE SESION")
+            logging.info("LOGIN PROCESS STARTED")
             page.click('#BtnConsultar')
             page.wait_for_load_state('networkidle')
 
-            logging.info("INICIADO PROCESO DE RECARGA EN CASO DE TIMEOUT 504")
+            logging.info("STARTED RELOAD PROCESS IN CASE OF TIMEOUT 504")
             number_of_reloads = 0
             max_reloads = 10
             while number_of_reloads < max_reloads:
                 page.wait_for_load_state('networkidle')
                 content = page.content()
                 if '504 Gateway Time-out' in content:
-                    logging.warning(f'Se recibió 504 Gateway Time-out. Recargando página. Intento número {number_of_reloads + 1}')
+                    logging.warning(f'504 Gateway Time-out received. Reloading page. Attempt number {number_of_reloads + 1}')
                     page.reload()
                     number_of_reloads += 1
                 else:
                     break
 
             if number_of_reloads >= max_reloads:
-                logging.error('Se alcanzó el número máximo de recargas sin éxito')
+                logging.error('The maximum number of unsuccessful reloads has been reached')
                 browser.close()
-                logging.info('NAVEGADOR CERRADO')
+                logging.info('BROWSER CLOSED')
                 return
             elif 'Arnaldo José Cisneros Zambrano' in content:
-                logging.info('Página cargada exitosamente')
+                logging.info('Page loaded successfully')
 
-            logging.info("ACCESO EXITOSO. INICIADO PROCESO DE LLENADO DE DATOS PARA ACTUALIZAR")
+            logging.info("SUCCESSFUL ACCESS. STARTED PROCESS OF FILLING IN DATA TO UPDATE")
             page.click('#lnkActualiza')
             page.wait_for_load_state('networkidle')
             page.fill("#TxtClaveVieja", ENCICLA_PIN_CODE)
@@ -58,7 +58,7 @@ def encicla_bot():
             if not page.is_checked("#chkTerminosCondiciones"):
                 page.check("#chkTerminosCondiciones")
 
-            logging.info("INICIANDO PROCESO DE ACTUALIZACION DE DATOS")
+            logging.info("STARTING DATA UPDATE PROCESS")
             page.click('#btnActualizar')
             page.wait_for_load_state('networkidle')
 
@@ -67,15 +67,15 @@ def encicla_bot():
                 page.wait_for_load_state('networkidle')
                 content = page.content()
                 if 'Se ha actualizado correctamente la información' in content:
-                    logging.info("DATOS ACTUALIZADOS EXITOSAMENTE")
+                    logging.info("DATA UPDATED SUCCESSFULLY")
                     page.reload()
                     break
                 else:
-                    logging.warning('ERROR DESCONOCIDO. PAGINA DE CONFIRMACION NO ENCONTRADA')
+                    logging.warning('UNKNOWN ERROR. CONFIRMATION PAGE NOT FOUND')
                     number_of_reloads += 1
                     page.reload()
 
-            logging.info("INICIANDO PROCESO DE VALIDACION DE RESULTADO")
+            logging.info("STARTING RESULT VALIDATION PROCESS")
             page.wait_for_load_state('networkidle')
             content = page.content()
             number_of_reloads = 0
@@ -83,20 +83,20 @@ def encicla_bot():
                 page.wait_for_load_state('networkidle')
                 content = page.content()
                 if '504 Gateway Time-out' in content:
-                    logging.warning(f'Se recibió 504 Gateway Time-out. Recargando página. Intento número {number_of_reloads + 1}')
+                    logging.warning(f'504 Gateway Time-out received. Reloading page. Attempt number {number_of_reloads + 1}')
                     page.reload()
                     number_of_reloads += 1
                 elif '6 días' in content:
-                    logging.info("VALIDACION LOGRADA. TRABAJO TERMINADO CON EXITO")
+                    logging.info("VALIDATION ACHIEVED. WORK COMPLETED SUCCESSFULLY")
                     break
                 else:
-                    logging.warning('ERROR DESCONOCIDO. MARCA DE VALIDACION NO ENCONTRADA. VERIFICAR MANUALMENTE RESULTADO.')
+                    logging.warning('UNKNOWN ERROR. VALIDATION MARK NOT FOUND. CHECK RESULT MANUALLY.')
                     break
 
         except Exception as e:
-            logging.error(f'OCURRIO UNA EXCEPCION: {e}')
+            logging.error(f'AN EXCEPTION OCCURRED: {e}')
         finally:
             browser.close()
-            logging.info('NAVEGADOR CERRADO')
+            logging.info('BROWSER CLOSED')
 
 encicla_bot()

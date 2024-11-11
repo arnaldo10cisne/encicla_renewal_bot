@@ -10,6 +10,7 @@ encicla_page = 'https://encicla.metropol.gov.co/Paginas/Autenticacion.aspx'
 ENCICLA_USER_ID = os.environ.get("ENCICLA_USER_ID")
 ENCICLA_PIN_CODE = os.environ.get("ENCICLA_PIN_CODE")
 ENCICLA_USER_NAME = os.environ.get("ENCICLA_USER_NAME")
+ENCICLA_DOCUMENT_TYPE = os.environ.get("ENCICLA_DOCUMENT_TYPE")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -21,7 +22,7 @@ def lambda_handler():
             page = browser.new_page()
             page.set_default_timeout(90000)
             page.goto(encicla_page)
-            page.select_option("#DdlTipoDocumento", "CE")
+            page.select_option("#DdlTipoDocumento", ENCICLA_DOCUMENT_TYPE)
             page.fill("#TxtNumeroDocumento", ENCICLA_USER_ID)
             page.fill("#TxtClave", ENCICLA_PIN_CODE)
 

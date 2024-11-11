@@ -9,6 +9,7 @@ load_dotenv()
 encicla_page = 'https://encicla.metropol.gov.co/Paginas/Autenticacion.aspx'
 ENCICLA_USER_ID = os.environ.get("ENCICLA_USER_ID")
 ENCICLA_PIN_CODE = os.environ.get("ENCICLA_PIN_CODE")
+ENCICLA_USER_NAME = os.environ.get("ENCICLA_USER_NAME")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -46,7 +47,7 @@ def lambda_handler():
                 browser.close()
                 logging.info('BROWSER CLOSED')
                 return
-            elif 'Arnaldo José Cisneros Zambrano' in content:
+            elif ENCICLA_USER_NAME in content:
                 logging.info('Page loaded successfully')
 
             logging.info("SUCCESSFUL ACCESS. STARTED PROCESS OF FILLING IN DATA TO UPDATE")

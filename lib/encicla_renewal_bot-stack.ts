@@ -37,6 +37,7 @@ export class EnciclaRenewalBotStack extends cdk.Stack {
       environment: {
         ENCICLA_USER_ID: process.env.ENCICLA_USER_ID!,
         ENCICLA_PIN_CODE: process.env.ENCICLA_PIN_CODE!,
+        ENCICLA_USER_NAME: process.env.ENCICLA_USER_NAME!,
       },
       layers: [playwright_lambda_layer]
     })

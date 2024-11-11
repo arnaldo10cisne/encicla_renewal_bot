@@ -13,9 +13,8 @@ ENCICLA_PIN_CODE = os.environ.get("ENCICLA_PIN_CODE")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def encicla_bot():
-    try:
-        with sync_playwright() as p:
-            
+    with sync_playwright() as p:
+        try:
             logging.info("INICIANDO ACCESO A LA PAGINA Y LLENADO DE DATOS PARA INICIAR SESION")
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
@@ -76,18 +75,28 @@ def encicla_bot():
                     number_of_reloads += 1
                     page.reload()
 
-            logging.info("INICIANDO VALIDACION")
+            logging.info("INICIANDO PROCESO DE VALIDACION DE RESULTADO")
             page.wait_for_load_state('networkidle')
             content = page.content()
-            if '6 días' in content:
-                logging.info("VALIDACION LOGRADA. TRABAJO TERMINADO CON EXITO")
-            else:
-                logging.warning('ERROR DESCONOCIDO. MARCA DE VALIDACION NO ENCONTRADA')
+            number_of_reloads = 0
+            while number_of_reloads < max_reloads:
+                page.wait_for_load_state('networkidle')
+                content = page.content()
+                if '504 Gateway Time-out' in content:
+                    logging.warning(f'Se recibió 504 Gateway Time-out. Recargando página. Intento número {number_of_reloads + 1}')
+                    page.reload()
+                    number_of_reloads += 1
+                elif '6 días' in content:
+                    logging.info("VALIDACION LOGRADA. TRABAJO TERMINADO CON EXITO")
+                    break
+                else:
+                    logging.warning('ERROR DESCONOCIDO. MARCA DE VALIDACION NO ENCONTRADA. VERIFICAR MANUALMENTE RESULTADO.')
+                    break
 
-    except Exception as e:
-        logging.error(f'OCURRIO UNA EXCEPCION: {e}')
-    finally:
-        browser.close()
-        logging.info('NAVEGADOR CERRADO')
+        except Exception as e:
+            logging.error(f'OCURRIO UNA EXCEPCION: {e}')
+        finally:
+            browser.close()
+            logging.info('NAVEGADOR CERRADO')
 
 encicla_bot()
